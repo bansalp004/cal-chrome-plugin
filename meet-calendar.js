@@ -285,12 +285,13 @@ class Description {
             }
             this.updateButtonURL();
 
-            if (location)
-                location.addLocationText(
-                    LOCATION_TEXT + ' - ' + BASE_URL + this.event.meetingId);
+            // if (location)
+            //     location.addLocationText(
+            //         LOCATION_TEXT + ' - ' + BASE_URL + this.event.meetingId);
         } else {
             this.updateButtonURL();
         }
+        console.log("inside update 3 ")
     }
 
     /**
@@ -618,7 +619,7 @@ class G2Event extends EventContainer {
             )
             && !this.isButtonPresent()) {
             this.updateMeetingId();
-            this.addJitsiButton();
+            this.addJitsiButton();  //main entry point for button
         }
     }
 
@@ -665,12 +666,37 @@ class G2Event extends EventContainer {
                                 <span id="jitsi_button" \
                                       class="RveJvd snByac">\
                                 </span>\
+                                <spand id="jitsi_button2"\
+                                </span>\
                             </content>\
                         </div>\
                     </div>\
                 </div>\
             </div>');
+
+
+        let newRow2 = $(
+            '<div class = "FrSOzf">\
+                <div class = "tzcF6">\
+                    <div class = "DPvwYc jitsi_edit_page_icon"/>\
+                </div>\
+                <div class = "j3nyw">\
+                    <div class = "BY5aAd">\
+                        <div role = "button" \
+                            class = "uArJ5e UQuaGc Y5sE8d" \
+                            id="jitsi_button_container">\
+                            <content class = "CwaK9">\
+                                <span id="jitsi_button2" \
+                                      class="RveJvd snByac">\
+                                </span>\
+                            </content>\
+                        </div>\
+                    </div>\
+                </div>\
+            </div>');
+
         newRow.insertBefore(neighbor);
+        //newRow2.insertBefore(neighbor);
 
         return newRow.find('content');
     }
@@ -833,7 +859,12 @@ class G2Description extends Description {
      */
     updateInitialButtonURL(location) {
         let button = $('#jitsi_button');
-        button.html('Add a ' + LOCATION_TEXT);
+        //button.html('Add a ' + LOCATION_TEXT);  //change here 2nd
+        button.html('<select name="cars" id="cars">\n' +
+            '  <option value="volvo">Volvo</option> ' +
+            '  <option value="volvo">Toyota</option> ' +
+            '  <option value="volvo">BMW</option> ' +
+            '</select>');
 
         let container = this.event.buttonContainer;
 
@@ -850,8 +881,13 @@ class G2Description extends Description {
      */
     updateButtonURL() {
         try {
-            var button = $('#jitsi_button');
-            button.html("Join your " + LOCATION_TEXT + " now");
+            var button = $('#jitsi_button2');
+
+            button.html('<select name="cars" id="cars">\n' +
+                '  <option value="volvo">Lexus</option> ' +
+                '  <option value="volvo">Toyota</option> ' +
+                '  <option value="volvo">BMW</option> ' +
+                '</select>');
 
             var container = this.event.buttonContainer;
 
