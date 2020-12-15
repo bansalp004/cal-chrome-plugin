@@ -267,18 +267,18 @@ class Description {
             // Build the invitation content
             if (CONFERENCE_MAPPER_SCRIPT) {
                 // queries a predefined location for settings
-                $.getJSON(CONFERENCE_MAPPER_SCRIPT
-                    + "?conference=" + this.event.meetingId + "@conference." + BASE_DOMAIN,
-                    jsonobj => {
-                        if (jsonobj.conference && jsonobj.id) {
-                            this.addDescriptionText(
-                                this.getInviteText(jsonobj.id));
-                        }
-                        else {
-                            this.addDescriptionText(
-                                this.getInviteText());
-                        }
-                    });
+                // $.getJSON(CONFERENCE_MAPPER_SCRIPT
+                //     + "?conference=" + this.event.meetingId + "@conference." + BASE_DOMAIN,
+                //     jsonobj => {
+                //         if (jsonobj.conference && jsonobj.id) {
+                //             this.addDescriptionText(
+                //                 this.getInviteText(jsonobj.id));
+                //         }
+                //         else {
+                //             this.addDescriptionText(
+                //                 this.getInviteText());
+                //         }
+                //     });
             }
             else {
                 this.addDescriptionText(this.getInviteText());
@@ -860,7 +860,8 @@ class G2Description extends Description {
     updateInitialButtonURL(location) {
         let button = $('#jitsi_button');
         //button.html('Add a ' + LOCATION_TEXT);  //change here 2nd
-        button.html('<select name="cars" id="cars">\n' +
+        button.html('<select name="calendar" id="calendar">\n' +
+            '  <option value="select a Calendar">Select a Calendar</option> ' +
             '  <option value="volvo">Volvo</option> ' +
             '  <option value="volvo">Toyota</option> ' +
             '  <option value="volvo">BMW</option> ' +
@@ -883,7 +884,8 @@ class G2Description extends Description {
         try {
             var button = $('#jitsi_button2');
 
-            button.html('<select name="cars" id="cars">\n' +
+            button.html('<select name="appointmentType" id="appointmentType">\n' +
+                '  <option value="select a Appointment type">Select an Appointment type</option> ' +
                 '  <option value="volvo">Lexus</option> ' +
                 '  <option value="volvo">Toyota</option> ' +
                 '  <option value="volvo">BMW</option> ' +
@@ -899,7 +901,8 @@ class G2Description extends Description {
                 // and then click join now before saving
                 this.event.updateMeetingId();
 
-                window.open(BASE_URL + this.event.meetingId, '_blank');
+                //bind onclik here - on the selected item
+                //window.open(BASE_URL + this.event.meetingId, '_blank');
             });
         } catch (e) {
             console.log(e);
@@ -1254,6 +1257,12 @@ function checkAndUpdateCalendarG2() {
             if (document.querySelector('body').dataset.viewfamily === 'EVENT') {
                 mutations.forEach(function (mutation) {
                     var mel = mutation.addedNodes[0];
+
+                    var button = $('#jitsi_button2');
+
+                    //console.log(button);  -- get selected drop down data
+
+
                     var newElement = mel && mel.outerHTML;
 
                     if (newElement

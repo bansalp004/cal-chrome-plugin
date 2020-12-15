@@ -5,9 +5,9 @@
   "version": "0.2.8",
   "minimum_chrome_version": "34",
   "icons": {
-    "16": "jitsi-logo-16x16.png",
-    "48": "jitsi-logo-48x48.png",
-    "128": "jitsi-logo-128x128.png"
+    "16": "mslogo.png",
+    "48": "mslogo.png",
+    "128": "mslogo.png"
   },
   "permissions": [
       "https://calendar.google.com/*"
@@ -33,7 +33,7 @@
     "jitsi-logo-grey.svg"
   ],
   "browser_action": {
-    "default_title": "Create Jitsi Meetings",
+    "default_title": "Create Mindstrong Meetings",
     "default_popup": "popup.html"
   }
 }
