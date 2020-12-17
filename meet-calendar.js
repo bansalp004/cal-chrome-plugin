@@ -867,6 +867,12 @@ class G2Description extends Description {
             '  <option value="volvo">BMW</option> ' +
             '</select>');
 
+
+        // var buttons = document.getElementById("jitsi_button");
+        // buttons.createElement(<select name="" id=""></select>)
+        //
+
+
         let container = this.event.buttonContainer;
 
         container.parent().off('click');
@@ -886,9 +892,9 @@ class G2Description extends Description {
 
             button.html('<select name="appointmentType" id="appointmentType">\n' +
                 '  <option value="select a Appointment type">Select an Appointment type</option> ' +
-                '  <option value="volvo">Lexus</option> ' +
-                '  <option value="volvo">Toyota</option> ' +
-                '  <option value="volvo">BMW</option> ' +
+                '  <option value="id1">Lexus</option> ' +
+                '  <option value="id2">Toyota</option> ' +
+                '  <option value="id3">BMW</option> ' +
                 '</select>');
 
             var container = this.event.buttonContainer;
@@ -1258,9 +1264,12 @@ function checkAndUpdateCalendarG2() {
                 mutations.forEach(function (mutation) {
                     var mel = mutation.addedNodes[0];
 
-                    var button = $('#jitsi_button2');
+                    var button = $('#jitsi_button2 select').val();
+                    console.log("button value button " + button);
+                    if (button){
+                        console.log("button value " + button);
+                    }
 
-                    //console.log(button);  -- get selected drop down data
 
 
                     var newElement = mel && mel.outerHTML;
