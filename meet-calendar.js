@@ -8,6 +8,7 @@ const CONFERENCE_MAPPER_SCRIPT = false;
 const LOCATION_TEXT = APP_NAME + ' Meeting';
 
 let generateRoomNameAsDigits = false;
+let selectedApptType;
 
 /**
  * The event page we will be updating.
@@ -633,7 +634,6 @@ class G2Event extends EventContainer {
         }
         return this.locationInstance;
     }
-
     /**
      * The button container holding jitsi button.
      * @returns {*}
@@ -663,41 +663,18 @@ class G2Event extends EventContainer {
                             class = "uArJ5e UQuaGc Y5sE8d" \
                             id="jitsi_button_container">\
                             <content class = "CwaK9">\
-                                <span id="jitsi_button" \
+                                <select id="jitsi_button" \
                                       class="RveJvd snByac">\
-                                </span>\
-                                <spand id="jitsi_button2"\
-                                </span>\
+                                </select><br>\
+                                <input type="text" id="memberId" >\
                             </content>\
                         </div>\
                     </div>\
                 </div>\
             </div>');
 
-
-        let newRow2 = $(
-            '<div class = "FrSOzf">\
-                <div class = "tzcF6">\
-                    <div class = "DPvwYc jitsi_edit_page_icon"/>\
-                </div>\
-                <div class = "j3nyw">\
-                    <div class = "BY5aAd">\
-                        <div role = "button" \
-                            class = "uArJ5e UQuaGc Y5sE8d" \
-                            id="jitsi_button_container">\
-                            <content class = "CwaK9">\
-                                <span id="jitsi_button2" \
-                                      class="RveJvd snByac">\
-                                </span>\
-                            </content>\
-                        </div>\
-                    </div>\
-                </div>\
-            </div>');
 
         newRow.insertBefore(neighbor);
-        //newRow2.insertBefore(neighbor);
-
         return newRow.find('content');
     }
 
@@ -858,19 +835,45 @@ class G2Description extends Description {
      * no meeting scheduled.
      */
     updateInitialButtonURL(location) {
-        let button = $('#jitsi_button');
-        //button.html('Add a ' + LOCATION_TEXT);  //change here 2nd
-        button.html('<select name="calendar" id="calendar">\n' +
-            '  <option value="select a Calendar">Select a Calendar</option> ' +
-            '  <option value="volvo">Volvo</option> ' +
-            '  <option value="volvo">Toyota</option> ' +
-            '  <option value="volvo">BMW</option> ' +
-            '</select>');
+        // let button = $('#jitsi_button');
+        // //button.html('Add a ' + LOCATION_TEXT);  //change here 2nd
+        // button.html('<select name="calendar" id="calendar">\n' +
+        //     '  <option value="select a Calendar">Select a Calendar</option> ' +
+        //     '  <option value="volvo">Volvo</option> ' +
+        //     '  <option value="volvo">Toyota</option> ' +
+        //     '  <option value="volvo">BMW</option> ' +
+        //     '</select>');
 
 
-        // var buttons = document.getElementById("jitsi_button");
-        // buttons.createElement(<select name="" id=""></select>)
-        //
+        const calendarUrl = 'http://localhost:8098/v1/care/appointments/appointment-types';
+
+        let calendarDropdown = $('#jitsi_button');
+
+        calendarDropdown.append($('<option></option>').attr('id', 0).text('select a appointment type'));
+
+        $.ajax({
+            url : calendarUrl,
+            beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik5EWkVSRFEwUkVSRE5EWkJSRUV6TVRFMFJqRTNNemRGTTBaQ00wRTVNMFpDTURsRlJUbERSUSJ9.eyJodHRwczovL21pbmRzdHJvbmdoZWFsdGguY29tL3BhcnRuZXJDb2RlIjoiZGV2MWF3c2NyMiIsImh0dHBzOi8vbWluZHN0cm9uZ2hlYWx0aC5jb20vbWluZHN0cm9uZ1VzZXJJRCI6IkRFVjFBV1NDUjIxMDAwMDAxMTI2IiwiaHR0cHM6Ly9taW5kc3Ryb25naGVhbHRoLmNvbS9taW5kc3Ryb25nVXNlclNvdXJjZSI6ImhlYWx0aC1wYXRpZW50IiwiaXNzIjoiaHR0cHM6Ly9kZXYtbWluZHN0cm9uZ2hlYWx0aC5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWJhOTFkMzM2ODVmYjI1ZDQ2MTg1MmRlIiwiYXVkIjpbImh0dHBzOi8vaGVhbHRoLm1pbmRzdHJvbmdoZWFsdGguY29tIiwiaHR0cHM6Ly9kZXYtbWluZHN0cm9uZ2hlYWx0aC5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNjA4MTkyODM5LCJleHAiOjE2MDgyNzkyMzksImF6cCI6IlVoajg4TVZhUFFMR1g3Q09sVFZCN2tETHJOR09SYTNhIiwic2NvcGUiOiJvcGVuaWQgZW1haWwgb2ZmbGluZV9hY2Nlc3MiLCJndHkiOiJwYXNzd29yZCJ9.jSGiGOusAfRVkUNPKmBgLaIRexwDCkrGHmAIV3CZxdaFySQbae65lAcfVHPoCifiJrCqQhXCIh1pu6GQ2K8uaoBnqCKDlGV1k8Efge6u1zue25okGlzJulTQc_XWlckiSmq0pJlAKJyrbTucAKOzerbpUCz-uyEWiYOxhhcnA01fXHrYlIdJfB0XEIfGgJsSoCvZvPm9-K-bdateZg_FA-vg7yaNfaWBJkcvMSn7LDYzYJuceHcOl28mF9OpimM8mbIOBACYYf1cqaWE5zeuBob_d6c9bNpZKHep8Dtf3zGTfq0tXh2QMSBHWKPC0my4uUqscYoKUAK4C4CskLRijw');},
+            success: function(data) {
+
+                $.each(data,  function (key, entry) {
+                    calendarDropdown.append($('<option></option>').attr('id', entry.id).text(entry.name));
+                })
+            }
+        });
+
+        $('#jitsi_button').change(function() {
+
+            var selectedValue = $('#jitsi_button').val();
+            selectedApptType = $(this).children(":selected").attr("id");
+            console.log("selected item" + selectedValue + " selectedId " + selectedApptType);
+
+        });
+
+
+
+
+
 
 
         let container = this.event.buttonContainer;
@@ -887,32 +890,32 @@ class G2Description extends Description {
      * Updates the url for the button.
      */
     updateButtonURL() {
-        try {
-            var button = $('#jitsi_button2');
-
-            button.html('<select name="appointmentType" id="appointmentType">\n' +
-                '  <option value="select a Appointment type">Select an Appointment type</option> ' +
-                '  <option value="id1">Lexus</option> ' +
-                '  <option value="id2">Toyota</option> ' +
-                '  <option value="id3">BMW</option> ' +
-                '</select>');
-
-            var container = this.event.buttonContainer;
-
-            container.parent().off('click');
-            container.parent().on('click', e => {
-                e.preventDefault();
-
-                // call updateMeetingId, the case where somebody edited location
-                // and then click join now before saving
-                this.event.updateMeetingId();
-
-                //bind onclik here - on the selected item
-                //window.open(BASE_URL + this.event.meetingId, '_blank');
-            });
-        } catch (e) {
-            console.log(e);
-        }
+        // try {
+        //     var button = $('#jitsi_button2');
+        //
+        //     button.html('<select name="appointmentType" id="appointmentType">\n' +
+        //         '  <option value="select a Appointment type">Select an Appointment type</option> ' +
+        //         '  <option value="id1">Lexus</option> ' +
+        //         '  <option value="id2">Toyota</option> ' +
+        //         '  <option value="id3">BMW</option> ' +
+        //         '</select>');
+        //
+        //     var container = this.event.buttonContainer;
+        //
+        //     container.parent().off('click');
+        //     container.parent().on('click', e => {
+        //         e.preventDefault();
+        //
+        //         // call updateMeetingId, the case where somebody edited location
+        //         // and then click join now before saving
+        //         this.event.updateMeetingId();
+        //
+        //         //bind onclik here - on the selected item
+        //         //window.open(BASE_URL + this.event.meetingId, '_blank');
+        //     });
+        // } catch (e) {
+        //     console.log(e);
+        // }
     }
 }
 
@@ -1264,13 +1267,12 @@ function checkAndUpdateCalendarG2() {
                 mutations.forEach(function (mutation) {
                     var mel = mutation.addedNodes[0];
 
-                    var button = $('#jitsi_button2 select').val();
-                    console.log("button value button " + button);
-                    if (button){
-                        console.log("button value " + button);
+                    var button = $('#jitsi_button select').attr("id");
+
+                    //console.log("button value button " + button);
+                    if (selectedApptType){
+                        console.log("selectedApptType value " + selectedApptType);
                     }
-
-
 
                     var newElement = mel && mel.outerHTML;
 
