@@ -9,6 +9,10 @@ const LOCATION_TEXT = APP_NAME + ' Meeting';
 
 let generateRoomNameAsDigits = false;
 let selectedApptType;
+let selectedApptTypeName;
+let token = 'enter your token'
+let booked = false;
+let counter = 0;
 
 /**
  * The event page we will be updating.
@@ -267,32 +271,14 @@ class Description {
         if (!isDescriptionUpdated) {
             // Build the invitation content
             if (CONFERENCE_MAPPER_SCRIPT) {
-                // queries a predefined location for settings
-                // $.getJSON(CONFERENCE_MAPPER_SCRIPT
-                //     + "?conference=" + this.event.meetingId + "@conference." + BASE_DOMAIN,
-                //     jsonobj => {
-                //         if (jsonobj.conference && jsonobj.id) {
-                //             this.addDescriptionText(
-                //                 this.getInviteText(jsonobj.id));
-                //         }
-                //         else {
-                //             this.addDescriptionText(
-                //                 this.getInviteText());
-                //         }
-                //     });
             }
             else {
                 this.addDescriptionText(this.getInviteText());
             }
             this.updateButtonURL();
-
-            // if (location)
-            //     location.addLocationText(
-            //         LOCATION_TEXT + ' - ' + BASE_URL + this.event.meetingId);
         } else {
             this.updateButtonURL();
         }
-        console.log("inside update 3 ")
     }
 
     /**
@@ -320,53 +306,11 @@ class Description {
      * @returns {String}
      */
     getInviteText(dialInID) {
-        let inviteText;
-        let hasTemplate = false;
-
-        if (this.event.inviteTextTemplate) {
-            inviteText = this.event.inviteTextTemplate;
-            hasTemplate = true;
-        } else {
-            inviteText =
-                "Click the following link to join the meeting " +
-                "from your computer: " + BASE_URL + this.event.meetingId;
+        console.log("selectedApptTypeName" + selectedApptTypeName);
+        if (!selectedApptTypeName){
+            selectedApptTypeName = "select an appointment type"
         }
-
-        if (this.event.numbers && Object.keys(this.event.numbers).length > 0) {
-            if (this.event.inviteNumbersTextTemplate) {
-                inviteText += this.event.inviteNumbersTextTemplate;
-                hasTemplate = true;
-                Object.keys(this.event.numbers).forEach(key => {
-                    let value = this.event.numbers[key];
-                    inviteText = inviteText.replace(
-                        '{' + key + '}',
-                        key + ": " + value);
-                });
-            } else {
-                inviteText += "\n\n=====";
-                inviteText +="\n\nJust want to dial in on your phone? ";
-                inviteText += " \n\nCall one of the following numbers: ";
-                Object.keys(this.event.numbers).forEach(key => {
-                    let value = this.event.numbers[key];
-                    inviteText += "\n" + key + ": " + value;
-                });
-                inviteText += "\n\nSay your conference name: '"
-                    + this.event.meetingId
-                    + "' and you will be connected!";
-            }
-        }
-
-        if (hasTemplate) {
-            inviteText = inviteText.replace(/\{BASE_URL\}/g, BASE_URL);
-            inviteText
-                = inviteText.replace(/\{MEETING_ID\}/g, this.event.meetingId);
-            if (dialInID) {
-                inviteText
-                    = inviteText.replace(/\{DIALIN_ID\}/g, dialInID);
-            }
-        }
-
-        return inviteText;
+        return selectedApptTypeName;
     }
 
     /**
@@ -663,10 +607,17 @@ class G2Event extends EventContainer {
                             class = "uArJ5e UQuaGc Y5sE8d" \
                             id="jitsi_button_container">\
                             <content class = "CwaK9">\
-                                <select id="jitsi_button" \
+                            <table>\
+                            <tr>\
+                                <td align="left"> <select id="jitsi_button" \
                                       class="RveJvd snByac">\
                                 </select><br>\
-                                <input type="text" id="memberId" >\
+                                </td>\
+                                </tr>\
+                                <tr>\
+                                <td align="left"> <input type="text" class="RveJvd snByac" align="right" value="Enter Member id" id="memberIdBox" > </td>\
+                                </tr>\
+                                </table>\
                             </content>\
                         </div>\
                     </div>\
@@ -853,7 +804,7 @@ class G2Description extends Description {
 
         $.ajax({
             url : calendarUrl,
-            beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik5EWkVSRFEwUkVSRE5EWkJSRUV6TVRFMFJqRTNNemRGTTBaQ00wRTVNMFpDTURsRlJUbERSUSJ9.eyJodHRwczovL21pbmRzdHJvbmdoZWFsdGguY29tL3BhcnRuZXJDb2RlIjoiZGV2MWF3c2NyMiIsImh0dHBzOi8vbWluZHN0cm9uZ2hlYWx0aC5jb20vbWluZHN0cm9uZ1VzZXJJRCI6IkRFVjFBV1NDUjIxMDAwMDAxMTI2IiwiaHR0cHM6Ly9taW5kc3Ryb25naGVhbHRoLmNvbS9taW5kc3Ryb25nVXNlclNvdXJjZSI6ImhlYWx0aC1wYXRpZW50IiwiaXNzIjoiaHR0cHM6Ly9kZXYtbWluZHN0cm9uZ2hlYWx0aC5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWJhOTFkMzM2ODVmYjI1ZDQ2MTg1MmRlIiwiYXVkIjpbImh0dHBzOi8vaGVhbHRoLm1pbmRzdHJvbmdoZWFsdGguY29tIiwiaHR0cHM6Ly9kZXYtbWluZHN0cm9uZ2hlYWx0aC5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNjA4MTkyODM5LCJleHAiOjE2MDgyNzkyMzksImF6cCI6IlVoajg4TVZhUFFMR1g3Q09sVFZCN2tETHJOR09SYTNhIiwic2NvcGUiOiJvcGVuaWQgZW1haWwgb2ZmbGluZV9hY2Nlc3MiLCJndHkiOiJwYXNzd29yZCJ9.jSGiGOusAfRVkUNPKmBgLaIRexwDCkrGHmAIV3CZxdaFySQbae65lAcfVHPoCifiJrCqQhXCIh1pu6GQ2K8uaoBnqCKDlGV1k8Efge6u1zue25okGlzJulTQc_XWlckiSmq0pJlAKJyrbTucAKOzerbpUCz-uyEWiYOxhhcnA01fXHrYlIdJfB0XEIfGgJsSoCvZvPm9-K-bdateZg_FA-vg7yaNfaWBJkcvMSn7LDYzYJuceHcOl28mF9OpimM8mbIOBACYYf1cqaWE5zeuBob_d6c9bNpZKHep8Dtf3zGTfq0tXh2QMSBHWKPC0my4uUqscYoKUAK4C4CskLRijw');},
+            beforeSend: function(xhr){xhr.setRequestHeader('Authorization', token);},
             success: function(data) {
 
                 $.each(data,  function (key, entry) {
@@ -866,7 +817,9 @@ class G2Description extends Description {
 
             var selectedValue = $('#jitsi_button').val();
             selectedApptType = $(this).children(":selected").attr("id");
-            console.log("selected item" + selectedValue + " selectedId " + selectedApptType);
+            selectedApptTypeName = $(this).children(":selected").text();
+            console.log("selected item" + selectedValue + " selectedId " + selectedApptType + " selectedApptTypeName" + selectedApptTypeName);
+            this.addDescriptionText(this.getInviteText());
 
         });
 
@@ -1267,11 +1220,36 @@ function checkAndUpdateCalendarG2() {
                 mutations.forEach(function (mutation) {
                     var mel = mutation.addedNodes[0];
 
-                    var button = $('#jitsi_button select').attr("id");
+                    var memberID = $('#memberIdBox').val();
 
-                    //console.log("button value button " + button);
-                    if (selectedApptType){
+                    console.log("memberId " + memberID);
+
+
+                    if (selectedApptType && !booked && memberID) {
+                        booked = true;
                         console.log("selectedApptType value " + selectedApptType);
+
+                        let bookUrl = 'http://localhost:8098/v1/health/appointments/book';
+                        let data = {
+                            "time": "2020-12-18T14:30:00-0800",
+                            "note": "Created by Mindstrong google calendar plugin",
+                            "mindstrongId": memberID,
+                            "appointmentType": selectedApptType
+                        };
+                        memberID="";
+                        console.log("calling book " + data);
+                        $.ajax({
+                            type: "POST",
+                            url: bookUrl,
+                            data: data,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', token);
+                            },
+                            success: function (data) {
+                                console.log("successfully booked " + data);
+                                booked = true;
+                            }
+                        });
                     }
 
                     var newElement = mel && mel.outerHTML;
